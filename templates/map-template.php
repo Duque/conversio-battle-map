@@ -2,6 +2,7 @@
 $token = isset( $_GET['token'] ) ? sanitize_text_field( $_GET['token'] ) : '';
 ?>
 <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
 <div id="cbm-map" x-data="demoMap()">
     <h2>Battle Map Conversio</h2>
     <svg viewBox="0 0 800 200" width="100%" height="auto">
