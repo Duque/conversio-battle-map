@@ -37,8 +37,12 @@
 
   <h2>Battle Map Conversio</h2>
 
+  <div style="margin: 1rem 0;">
+    Primer nodo: <strong x-text="mapData.userMap.territories[0].sections[0].slug"></strong>
+  </div>
+
   <template x-if="mapData && mapData.userMap && mapData.userMap.territories.length > 0">
-    <svg viewBox="0 0 800 200" width="100%" height="auto">
+    <svg viewBox="0 0 800 200" width="100%" height="200" style="background-color: #eee;">
       <template x-for="(section, index) in mapData.userMap.territories[0].sections" :key="section.slug">
         <g :transform="`translate(${100 + index * 200}, 100)`">
           <circle
