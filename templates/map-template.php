@@ -43,24 +43,26 @@
 
   <template x-if="mapData && mapData.userMap && mapData.userMap.territories.length > 0">
     <svg viewBox="0 0 800 200" width="100%" height="200" style="background: #f1f5f9;">
-      <template x-for="(section, index) in mapData.userMap.territories[0].sections" :key="section.slug">
-        <g :transform="`translate(${100 + index * 200}, 100)`">
-          <circle
-            r="40"
-            :fill="section.completed ? '#4ade80' : (section.unlocked ? '#facc15' : '#94a3b8')"
-            stroke="#1e293b"
-            stroke-width="3"
-          ></circle>
-          <text
-            x="0"
-            y="5"
-            font-size="14"
-            fill="#1e293b"
-            text-anchor="middle"
-            x-text="section.slug"
-          ></text>
-        </g>
-      </template>
+      <g
+        x-for="(section, index) in mapData.userMap.territories[0].sections"
+        :key="section.slug"
+        :transform="`translate(${100 + index * 200}, 100)`"
+      >
+        <circle
+          r="40"
+          :fill="section.completed ? '#4ade80' : (section.unlocked ? '#facc15' : '#94a3b8')"
+          stroke="#1e293b"
+          stroke-width="3"
+        ></circle>
+        <text
+          x="0"
+          y="5"
+          font-size="14"
+          fill="#1e293b"
+          text-anchor="middle"
+          x-text="section.slug"
+        ></text>
+      </g>
     </svg>
   </template>
 
