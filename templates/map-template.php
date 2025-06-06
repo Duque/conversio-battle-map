@@ -42,7 +42,7 @@
   </div>
 
   <template x-if="mapData && mapData.userMap && mapData.userMap.territories.length > 0">
-    <svg viewBox="0 0 800 200" width="100%" height="200" style="background-color: #eee;">
+    <svg viewBox="0 0 800 200" width="100%" height="200" style="background: #f1f5f9;">
       <template x-for="(section, index) in mapData.userMap.territories[0].sections" :key="section.slug">
         <g :transform="`translate(${100 + index * 200}, 100)`">
           <circle
