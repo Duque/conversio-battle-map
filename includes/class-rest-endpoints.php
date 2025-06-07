@@ -386,5 +386,24 @@ class CBM_Rest_Endpoints {
         return $pdf;
     }
 
-    // The calculate_points method was replaced by the global calculatePoints helper.
+// The calculate_points method was replaced by the global calculatePoints helper.
 }
+
+add_action( 'rest_api_init', function() {
+    register_rest_route(
+        'conversio-battle-map/v1',
+        '/map/token/(?P<access_token>[a-zA-Z0-9_-]+)',
+        [
+            'methods'             => 'GET',
+            'callback'            => function( WP_REST_Request $request ) {
+                $token = $request['access_token'];
+                $data  = CBM_User_Map::get_user_map_by_token( $token );
+                if ( $data ) {
+                    return wp_send_json_success( $data );
+                }
+                return wp_send_json_error( [ 'message' => 'Mapa no encontrado.' ], 404 );
+            },
+            'permission_callback' => '__return_true',
+        ]
+    );
+} );
