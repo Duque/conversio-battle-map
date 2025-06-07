@@ -22,12 +22,16 @@ require_once CBM_PLUGIN_PATH . 'includes/token-auth.php';
 define( 'CBM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CBM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
+// Custom rewrite rule and tag for direct map access.
+add_action( 'init', function() {
+    add_rewrite_rule( '^battle-map/map/?$', 'index.php?battle_map_page=1', 'top' );
+    add_rewrite_tag( '%battle_map_page%', '1' );
+} );
+
 /**
  * Activate plugin: register CPT and flush rewrite rules.
  */
 function cbm_activate() {
-    add_rewrite_rule( '^battle-map/map/?$', 'index.php?battle_map_page=1', 'top' );
-    add_rewrite_tag( '%battle_map_page%', '1' );
     register_battle_map_cpt();
     flush_rewrite_rules();
 }
