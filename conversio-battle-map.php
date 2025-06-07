@@ -26,6 +26,8 @@ define( 'CBM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
  * Activate plugin: register CPT and flush rewrite rules.
  */
 function cbm_activate() {
+    add_rewrite_rule( '^battle-map/map/?$', 'index.php?battle_map_page=1', 'top' );
+    add_rewrite_tag( '%battle_map_page%', '1' );
     register_battle_map_cpt();
     flush_rewrite_rules();
 }
@@ -61,10 +63,6 @@ function cbm_render_map() {
 add_shortcode( 'battle_map', 'cbm_render_map' );
 
 // Rewrite rule and template loader for direct map access.
-add_action( 'init', function () {
-    add_rewrite_rule( '^battle-map/map/?$', 'index.php?battle_map_page=1', 'top' );
-    add_rewrite_tag( '%battle_map_page%', '1' );
-} );
 
 add_filter( 'template_include', function ( $template ) {
     if ( get_query_var( 'battle_map_page' ) == 1 ) {
