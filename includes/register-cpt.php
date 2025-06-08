@@ -1,20 +1,15 @@
 <?php
 function register_battle_map_cpt() {
-    $args = [
-        'labels'          => [
-            'name'          => 'Battle Maps',
-            'singular_name' => 'Battle Map',
-        ],
-        'public'          => false,
-        'show_ui'         => true,
-        'show_in_rest'    => true,
-        'supports'        => [ 'title', 'custom-fields' ],
-        'capability_type' => 'post',
-        'menu_position'   => 25,
-        'menu_icon'       => 'dashicons-location-alt',
-    ];
-
-    register_post_type( 'battle_map', $args );
+    register_post_type( 'battle_map', [
+        'label'        => 'Battle Maps',
+        'public'       => false,
+        'show_ui'      => true,
+        'show_in_menu' => true,
+        'menu_position'=> 20,
+        'menu_icon'    => 'dashicons-location-alt',
+        'supports'     => [ 'title', 'custom-fields' ],
+        'show_in_rest' => true,
+    ] );
 }
 add_action( 'init', 'register_battle_map_cpt' );
 
