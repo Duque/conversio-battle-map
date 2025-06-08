@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battle Map Conversio</title>
   <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script>
+    window.cbmBaseUrl = "<?php echo esc_url( CBM_PLUGIN_URL ); ?>";
+  </script>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -22,43 +25,51 @@
 </head>
 <body x-data="demoMap()" x-init="init()">
 
-  <main class="min-h-screen w-full bg-slate-100 overflow-y-auto p-4">
-    <header class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Battle Map Conversio</h1>
-      <button @click="showAchievementsPanel = true" class="bg-gray-800 text-white px-2 py-1 rounded">Logros</button>
+  <div class="relative w-screen h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth bg-slate-900 text-white font-sans">
+    <header class="sticky top-0 z-50 bg-black/80 backdrop-blur px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <h1 class="text-xl font-bold">Battle Map Conversio</h1>
+        <nav class="flex gap-2 text-sm">
+          <template x-for="territory in mapData.userMap.territories.filter(t => t.unlocked)">
+            <a :href="`#territory-${territory.slug}`" class="hover:underline text-white/80">
+              <span x-text="territory.title.split(' ')[0]"></span>
+            </a>
+          </template>
+        </nav>
+      </div>
+      <button class="text-sm border px-3 py-1 rounded border-white/30 hover:bg-white/10" @click="showAchievementsPanel = true">Logros</button>
     </header>
 
-    <div class="bg-white shadow p-4 text-center sticky top-0 z-40">
-      <p class="text-sm text-gray-600">Puntuación acumulada</p>
-      <h2 class="text-2xl font-bold text-green-700" x-text="`${totalPoints} / 1000 puntos`"></h2>
+    <div class="sticky top-[56px] z-40 bg-black/60 px-4 py-2 text-sm backdrop-blur">
+      <p>Puntuación acumulada</p>
+      <h2 class="text-lg font-semibold" x-text="`${totalPoints} / 1000 puntos`"></h2>
     </div>
 
     <template x-for="territory in mapData.userMap.territories.filter(t => t.unlocked)" :key="territory.slug">
       <section
-        class="py-10 px-4 mb-8 rounded shadow-md"
-        :style="`background-color: ${getTerritoryColor(territory.slug)}`"
+        :id="`territory-${territory.slug}`"
+        class="w-full min-h-screen px-4 py-16 flex flex-col gap-6 relative snap-start bg-cover bg-center bg-no-repeat"
+        :style="`background-image: url(${cbmBaseUrl}/assets/backgrounds/${territory.slug}.png), linear-gradient(to bottom, #1e293b, #0f172a);`"
       >
-        <h2 class="text-xl font-bold text-white" x-text="territory.title"></h2>
-        <p class="text-sm text-gray-200 mb-4" x-text="territory.description"></p>
+        <div class="bg-black/50 p-4 rounded max-w-xl">
+          <h2 class="text-2xl font-bold" x-text="territory.title"></h2>
+          <p class="text-sm mt-1" x-text="territory.description"></p>
+        </div>
 
-        <template x-for="section in territory.sections" :key="section.slug">
-          <div class="relative bg-white rounded p-4 shadow mb-4 cursor-pointer"
-               @click="openPopup(section)"
-               :class="{ 'opacity-100': section.unlocked, 'opacity-50': !section.unlocked, 'border-l-4 border-green-500': section.completed }">
-            <div class="absolute top-2 right-2 text-xl">
-              <template x-if="section.completed">
-                <span class="text-green-600" title="Completada">✅</span>
-              </template>
-              <template x-if="!section.completed && section.unlocked">
-                <span class="text-blue-600" title="Desbloqueada">🔓</span>
-              </template>
-              <template x-if="!section.unlocked">
-                <span class="text-gray-400" title="Bloqueada">🔒</span>
-              </template>
-            </div>
-            <h3 class="text-lg font-bold" x-text="section.title"></h3>
-            <p class="text-sm text-gray-700 mt-1" x-text="`Impacto: ${section.impact}`"></p>
-            <p class="text-sm text-gray-500 italic" x-text="`Fricción: ${section.friction}`"></p>
+        <template x-for="section in territory.sections">
+          <div
+            class="bg-white/90 text-black rounded shadow p-4 w-full max-w-md"
+            :class="{ 'ring-2 ring-orange-500': popupBox.visible && popupBox.section?.slug === section.slug }"
+            @click="openPopup(section)">
+            <img
+              class="w-12 h-12 mb-2"
+              :src="`${cbmBaseUrl}/assets/icons/${section.slug}.png`"
+              :alt="section.title"
+              @error="$el.style.display='none'"
+            />
+            <h3 class="font-semibold text-lg" x-text="section.title"></h3>
+            <p class="text-sm" x-text="`Impacto: ${section.impact}`"></p>
+            <p class="text-sm italic" x-text="`Fricción: ${section.friction}`"></p>
           </div>
         </template>
       </section>
@@ -96,34 +107,79 @@
     </div>
   </template>
 
-    </main>
-
   <div x-show="popupBox.visible"
-       class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
-       @click.self="closePopup">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-lg relative">
-      <button @click="closePopup"
-              class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
-        ✕
-      </button>
+       @click.outside="closePopup"
+       class="fixed top-[80px] right-4 w-[320px] max-w-full bg-white/90 text-black rounded-lg shadow-lg p-5 z-50 space-y-3"
+       style="backdrop-filter: blur(8px);">
 
-      <h2 class="text-xl font-bold mb-2" x-text="popupBox.section?.title"></h2>
-      <p class="text-sm text-gray-600 mb-1"
-         x-text="`Fricción: ${popupBox.section?.friction}`"></p>
-      <p class="text-sm text-gray-600 mb-1"
-         x-text="`Impacto: ${popupBox.section?.impact}`"></p>
-      <p class="text-gray-800 mt-4 text-sm" x-text="popupBox.section?.details"></p>
-      <p class="text-blue-700 font-medium mt-2 text-sm italic"
-         x-text="popupBox.section?.recommendation"></p>
-
-      <template x-if="popupBox.section?.unlocked && !popupBox.section?.completed">
-        <button @click="completeSection(popupBox.section.slug)"
-                class="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">
-          Marcar como completada
-        </button>
-      </template>
+    <div class="flex justify-between items-start">
+      <div class="flex items-start gap-3">
+        <img
+          class="w-10 h-10 mb-2"
+          :src="`${cbmBaseUrl}/assets/icons/${popupBox.section?.slug}.png`"
+          :alt="popupBox.section?.title"
+          @error="$el.style.display='none'"
+        />
+        <h2 class="text-xl font-bold" x-text="popupBox.section?.title"></h2>
+      </div>
+      <button @click="closePopup" class="text-gray-600 hover:text-black text-xl font-bold">×</button>
     </div>
+
+    <div class="bg-gray-100 text-gray-800 rounded px-3 py-2 text-sm space-y-1">
+      <p><strong>Fricción:</strong> <span x-text="popupBox.section?.friction"></span></p>
+      <p><strong>Impacto:</strong> <span x-text="popupBox.section?.impact"></span></p>
+    </div>
+
+    <template x-if="popupBox.section?.details">
+      <div class="mt-3">
+        <p class="text-sm font-semibold mb-1 text-gray-800">Síntomas detectados:</p>
+        <p class="text-sm italic text-gray-600" x-text="popupBox.section.details"></p>
+      </div>
+    </template>
+
+    <p class="text-sm font-medium text-blue-600 italic"
+       x-text="popupBox.section?.recommendation"></p>
+
+    <template x-if="popupBox.section?.recommendations?.length">
+      <div class="mt-4">
+        <p class="text-sm font-semibold mb-1">Recomendaciones clave:</p>
+        <ul class="space-y-2 text-sm text-gray-700 list-none pl-0">
+          <template x-for="(rec, index) in popupBox.section.recommendations">
+            <li class="flex items-start gap-2 bg-white/80 p-2 rounded shadow">
+              <!-- Prioridad -->
+              <span
+                class="block w-2 h-2 mt-[6px] rounded-full"
+                :class="{
+                  'bg-red-500': (rec.priority || 'medium') === 'high',
+                  'bg-yellow-500': (rec.priority || 'medium') === 'medium',
+                  'bg-green-500': (rec.priority || 'medium') === 'low'
+                }"
+              ></span>
+
+              <!-- Contenido -->
+              <div class="flex-1 space-y-1">
+                <p x-text="rec.text" class="leading-tight font-medium text-gray-800"></p>
+                <!-- Tipo -->
+                <template x-if="rec.type">
+                  <span x-text="rec.type"
+                        class="text-xs font-semibold px-2 py-[1px] rounded bg-slate-200 text-slate-800"></span>
+                </template>
+              </div>
+            </li>
+          </template>
+        </ul>
+      </div>
+    </template>
+
+    <template x-if="popupBox.section?.unlocked && !popupBox.section?.completed">
+      <button @click="completeSection(popupBox.section.slug)"
+              class="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">
+        Marcar como completada
+      </button>
+    </template>
   </div>
+
+    </div>
 
   <div x-show="error" style="color: red; margin-bottom: 1rem;" x-text="error"></div>
 
@@ -138,6 +194,7 @@
   <script>
     function demoMap() {
       return {
+        cbmBaseUrl: '<?php echo esc_url( CBM_PLUGIN_URL ); ?>',
         loading: false,
         error: false,
         mapData: {
