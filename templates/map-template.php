@@ -25,7 +25,7 @@
 </head>
 <body x-data="demoMap()" x-init="init()">
 
-  <div class="relative w-screen h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth bg-slate-900 text-white font-sans">
+  <div class="relative w-screen h-screen overflow-y-auto bg-white text-black font-sans">
     <header class="sticky top-0 z-50 bg-black/80 backdrop-blur px-4 py-3 flex justify-between items-center">
       <div class="flex items-center gap-4">
         <h1 class="text-xl font-bold">Battle Map Conversio</h1>
@@ -179,9 +179,9 @@
     </template>
   </div>
 
-    </div>
-
   <div x-show="error" style="color: red; margin-bottom: 1rem;" x-text="error"></div>
+
+  </div> <!-- fin del contenedor principal del mapa -->
 
   <div class="debug">
     <strong>Debug:</strong><br>
