@@ -406,4 +406,193 @@ add_action( 'rest_api_init', function() {
             'permission_callback' => '__return_true',
         ]
     );
+
+    register_rest_route(
+        'conversio-battle-map/v1',
+        '/map/(?P<userId>[a-zA-Z0-9_-]+)/section/(?P<slug>[a-zA-Z0-9_-]+)/complete',
+        [
+            'methods'             => 'POST',
+            'callback'            => function( WP_REST_Request $request ) {
+                $user_id = $request['userId'];
+                $slug    = $request['slug'];
+
+                $data = CBM_User_Map::get_user_map_by_user_id( $user_id );
+                if ( ! $data ) {
+                    return wp_send_json_error( [ 'message' => 'Mapa no encontrado.' ], 404 );
+                }
+
+                $args = [
+                    'post_type'      => 'battle_map',
+                    'posts_per_page' => 1,
+                    'fields'         => 'ids',
+                    'meta_query'     => [
+                        [
+                            'key'   => 'user_id',
+                            'value' => $user_id,
+                        ],
+                    ],
+                ];
+
+                $posts = get_posts( $args );
+                if ( empty( $posts ) ) {
+                    return wp_send_json_error( [ 'message' => 'Mapa no encontrado.' ], 404 );
+                }
+                $post_id = $posts[0];
+
+                $user_map     = $data['userMap'];
+                $progress     = $data['progressRecord'];
+                $achievements = $data['achievements'];
+
+                $section_found = false;
+                foreach ( $user_map['territories'] as &$territory ) {
+                    foreach ( $territory['sections'] as &$section ) {
+                        if ( $section['slug'] === $slug ) {
+                            if ( empty( $territory['unlocked'] ) ) {
+                                return wp_send_json_error( [ 'message' => 'Territorio bloqueado.' ], 403 );
+                            }
+                            if ( empty( $section['unlocked'] ) ) {
+                                return wp_send_json_error( [ 'message' => 'Sección no desbloqueada.' ], 400 );
+                            }
+                            $section['completed'] = true;
+
+                            if ( ! empty( $section['next'] ) && is_array( $section['next'] ) ) {
+                                foreach ( $section['next'] as $next_slug ) {
+                                    foreach ( $territory['sections'] as &$next_sec ) {
+                                        if ( $next_sec['slug'] === $next_slug && empty( $next_sec['unlocked'] ) ) {
+                                            $next_sec['unlocked'] = true;
+                                        }
+                                    }
+                                }
+                            }
+                            $section_found = true;
+                            break 2;
+                        }
+                    }
+                }
+
+                if ( ! $section_found ) {
+                    return wp_send_json_error( [ 'message' => 'Sección no encontrada.' ], 400 );
+                }
+
+                foreach ( $user_map['territories'] as &$territory ) {
+                    if ( empty( $territory['sections'] ) ) {
+                        continue;
+                    }
+                    $all_done = true;
+                    foreach ( $territory['sections'] as $s ) {
+                        if ( empty( $s['completed'] ) ) {
+                            $all_done = false;
+                            break;
+                        }
+                    }
+                    if ( $all_done ) {
+                        $territory['completed'] = true;
+                    }
+                }
+
+                $progress['totalPoints'] = calculatePoints( $user_map );
+                $progress['lastUpdated'] = gmdate( 'Y-m-d\TH:i:s\Z' );
+
+                $new_achievements = unlockAchievement( $user_map, $progress, $achievements );
+
+                CBM_User_Map::update_user_map_data( $post_id, $user_map, $progress, $achievements );
+
+                $response = [
+                    'success'         => true,
+                    'userMap'         => $user_map,
+                    'progressRecord'  => $progress,
+                    'newAchievements' => [],
+                ];
+
+                if ( ! empty( $new_achievements ) ) {
+                    foreach ( $achievements as $ach ) {
+                        if ( in_array( $ach['id'], $new_achievements, true ) ) {
+                            $response['newAchievements'][] = $ach;
+                        }
+                    }
+                }
+
+                return rest_ensure_response( $response );
+            },
+            'permission_callback' => '__return_true',
+        ]
+    );
+
+    register_rest_route(
+        'conversio-battle-map/v1',
+        '/map/(?P<userId>[a-zA-Z0-9_-]+)/territory/(?P<slug>[a-zA-Z0-9_-]+)/unlock',
+        [
+            'methods'             => 'POST',
+            'callback'            => function( WP_REST_Request $request ) {
+                $user_id = $request['userId'];
+                $slug    = $request['slug'];
+
+                $params = $request->get_json_params();
+                $product_id       = isset( $params['productId'] ) ? sanitize_text_field( $params['productId'] ) : '';
+                $payment_verified = isset( $params['paymentVerified'] ) ? (bool) $params['paymentVerified'] : false;
+
+                if ( ! $payment_verified ) {
+                    return wp_send_json_error( [ 'message' => 'Pago no verificado.' ], 400 );
+                }
+
+                $data = CBM_User_Map::get_user_map_by_user_id( $user_id );
+                if ( ! $data ) {
+                    return wp_send_json_error( [ 'message' => 'Mapa no encontrado.' ], 404 );
+                }
+
+                $args = [
+                    'post_type'      => 'battle_map',
+                    'posts_per_page' => 1,
+                    'fields'         => 'ids',
+                    'meta_query'     => [
+                        [
+                            'key'   => 'user_id',
+                            'value' => $user_id,
+                        ],
+                    ],
+                ];
+
+                $posts = get_posts( $args );
+                if ( empty( $posts ) ) {
+                    return wp_send_json_error( [ 'message' => 'Mapa no encontrado.' ], 404 );
+                }
+                $post_id = $posts[0];
+
+                $user_map     = $data['userMap'];
+                $progress     = $data['progressRecord'];
+                $achievements = $data['achievements'];
+
+                $territories_to_unlock = [];
+                switch ( $product_id ) {
+                    case 'clarity-call':
+                        $territories_to_unlock = [ 'clarity-call' ];
+                        break;
+                    case 'battle-map':
+                        $territories_to_unlock = [ 'clarity-call', 'battle-map' ];
+                        break;
+                    case 'scanner':
+                        foreach ( $user_map['territories'] as $t ) {
+                            if ( ! empty( $t['slug'] ) ) {
+                                $territories_to_unlock[] = $t['slug'];
+                            }
+                        }
+                        break;
+                    default:
+                        $territories_to_unlock = [ $slug ];
+                        break;
+                }
+
+                foreach ( $user_map['territories'] as &$territory ) {
+                    if ( in_array( $territory['slug'], $territories_to_unlock, true ) ) {
+                        $territory['unlocked'] = true;
+                    }
+                }
+
+                CBM_User_Map::update_user_map_data( $post_id, $user_map, $progress, $achievements );
+
+                return wp_send_json_success( [ 'userMap' => $user_map ] );
+            },
+            'permission_callback' => '__return_true',
+        ]
+    );
 } );
