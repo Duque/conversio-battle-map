@@ -1,3 +1,147 @@
 {
-  "userId": "demo"
+  "userId": "raul123",
+  "currentTerritorySlug": "clarity-call",
+  "currentSectionSlug": "home",
+  "createdAt": "2025-06-07T00:00:00Z",
+  "updatedAt": "2025-06-07T00:00:00Z",
+  "territories": [
+    {
+      "id": "clarity-call",
+      "slug": "clarity-call",
+      "title": "Clarity Call\u2122",
+      "description": "Diagn\u00f3stico expr\u00e9s del embudo",
+      "unlocked": true,
+      "completed": false,
+      "order": 1,
+      "sections": [
+        {
+          "id": "home",
+          "slug": "home",
+          "title": "P\u00e1gina principal",
+          "friction": "Low",
+          "impact": 4,
+          "recommendation": "Aclara tu propuesta de valor.",
+          "details": "El visitante no entiende qu\u00e9 vendes.",
+          "completed": false,
+          "unlocked": true,
+          "next": ["product"]
+        },
+        {
+          "id": "product",
+          "slug": "product",
+          "title": "P\u00e1gina de producto",
+          "friction": "Medium",
+          "impact": 6,
+          "recommendation": "Mejora las fotos y descripci\u00f3n del producto.",
+          "details": "Falta persuas\u00f3n o claridad.",
+          "completed": false,
+          "unlocked": false,
+          "next": ["cart"]
+        },
+        {
+          "id": "cart",
+          "slug": "cart",
+          "title": "Carrito",
+          "friction": "High",
+          "impact": 7,
+          "recommendation": "Simplifica y elimina pasos innecesarios.",
+          "details": "Hay fricci\u00f3n en el proceso.",
+          "completed": false,
+          "unlocked": false,
+          "next": ["checkout"]
+        },
+        {
+          "id": "checkout",
+          "slug": "checkout",
+          "title": "Checkout",
+          "friction": "Critical",
+          "impact": 10,
+          "recommendation": "Optimiza cada campo y minimiza la fricci\u00f3n.",
+          "details": "P\u00e9rdida masiva de usuarios aqu\u00ed.",
+          "completed": false,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "id": "battle-map",
+      "slug": "battle-map",
+      "title": "Battle Map\u2122",
+      "description": "An\u00e1lisis avanzado de fricciones y cuellos de botella.",
+      "unlocked": true,
+      "completed": false,
+      "order": 2,
+      "sections": [
+        {
+          "id": "mobile-speed",
+          "slug": "mobile-speed",
+          "title": "Velocidad m\u00f3vil",
+          "friction": "High",
+          "impact": 6,
+          "recommendation": "Reduce scripts y optimiza im\u00e1genes.",
+          "details": "El sitio tarda m\u00e1s de 4s en cargar en m\u00f3vil.",
+          "completed": false,
+          "unlocked": true,
+          "next": ["usability"]
+        },
+        {
+          "id": "usability",
+          "slug": "usability",
+          "title": "Usabilidad general",
+          "friction": "Medium",
+          "impact": 5,
+          "recommendation": "Simplifica navegaci\u00f3n y jerarqu\u00eda visual.",
+          "details": "Demasiados clics o confusi\u00f3n de interfaz.",
+          "completed": false,
+          "unlocked": false,
+          "next": ["trust"]
+        },
+        {
+          "id": "trust",
+          "slug": "trust",
+          "title": "Confianza percibida",
+          "friction": "Medium",
+          "impact": 7,
+          "recommendation": "A\u00f1ade sellos, opiniones y garant\u00edas visibles.",
+          "details": "Falta de elementos que generen confianza.",
+          "completed": false,
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "id": "scanner-conversio",
+      "slug": "scanner",
+      "title": "Scanner Conversio\u2122",
+      "description": "Evaluaci\u00f3n autom\u00e1tica con IA del funnel completo.",
+      "unlocked": true,
+      "completed": false,
+      "order": 3,
+      "sections": [
+        {
+          "id": "analytics",
+          "slug": "analytics",
+          "title": "Implementaci\u00f3n de anal\u00edtica",
+          "friction": "Critical",
+          "impact": 9,
+          "recommendation": "Asegura medici\u00f3n completa del funnel.",
+          "details": "Datos incompletos o GA4 mal configurado.",
+          "completed": false,
+          "unlocked": true,
+          "next": ["funnel"]
+        },
+        {
+          "id": "funnel",
+          "slug": "funnel",
+          "title": "Rendimiento del embudo",
+          "friction": "High",
+          "impact": 8,
+          "recommendation": "Optimiza tasa de paso entre etapas.",
+          "details": "Ca\u00edda importante entre visita y compra.",
+          "completed": false,
+          "unlocked": false
+        }
+      ]
+    }
+  ]
 }

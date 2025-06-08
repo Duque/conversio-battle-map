@@ -8,20 +8,7 @@
   <style>
     body {
       font-family: system-ui, sans-serif;
-      padding: 2rem;
       background-color: #f8fafc;
-    }
-    h2 {
-      font-size: 24px;
-      margin-bottom: 1rem;
-    }
-    svg {
-      border: 1px solid #cbd5e1;
-      margin-bottom: 2rem;
-      background: #ffffff;
-    }
-    text {
-      pointer-events: none;
     }
     .debug {
       background: #fef9c3;
@@ -33,78 +20,51 @@
     }
   </style>
 </head>
-<body x-data="demoMap()" x-init="init()" style="position: relative;">
+<body x-data="demoMap()" x-init="init()">
 
-  <h2>Battle Map Conversio</h2>
+  <main class="min-h-screen w-full bg-slate-100 overflow-y-auto p-4">
+    <header class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold">Battle Map Conversio</h1>
+      <button @click="showAchievementsPanel = true" class="bg-gray-800 text-white px-2 py-1 rounded">Logros</button>
+    </header>
 
-  <div style="position:absolute; top:20px; right:20px; background:#ffffff; padding:0.5rem 1rem; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-    Progreso: <span x-text="`${mapData.totalPoints} / 1000 puntos`"></span>
-  </div>
-
-  <button @click="showAchievementsPanel = true" style="position:absolute; top:20px; left:20px; background:#1e293b; color:#fff; padding:0.25rem 0.5rem; border-radius:4px;">Logros</button>
-
-  <div x-show="mapData.userMap && mapData.userMap.currentTerritorySlug" style="margin-bottom:1rem;">
-    <h3 x-text="getCurrentTerritoryTitle()"></h3>
-    <div style="height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
-      <div style="height:100%; background:#4ade80;" :style="`width:${getTerritoryProgress().percent}%`"></div>
+    <div class="bg-white shadow p-4 text-center sticky top-0 z-40">
+      <p class="text-sm text-gray-600">Puntuación acumulada</p>
+      <h2 class="text-2xl font-bold text-green-700" x-text="`${totalPoints} / 1000 puntos`"></h2>
     </div>
-    <div style="font-size:12px; margin-top:4px;" x-text="`${getTerritoryProgress().completed} de ${getTerritoryProgress().total} secciones completadas`"></div>
-  </div>
 
-  <template x-if="mapData && mapData.userMap && mapData.userMap.territories.length > 0">
-    <svg viewBox="0 0 800 200" width="100%" height="200" style="background: #f1f5f9;">
-      <template x-if="mapData.visualMap && Array.isArray(mapData.visualMap.paths)">
-        <g>
-          <template x-for="(path, i) in mapData.visualMap.paths" :key="i">
-            <path
-              :d="buildPathD(path)"
-              stroke="#94a3b8"
-              stroke-width="2"
-              fill="none"
-              :stroke-dasharray="path.dashed ? '4 4' : ''"
-            ></path>
-          </template>
-        </g>
-      </template>
-      <g
-        x-for="(section, index) in mapData.userMap.territories[0].sections"
-        :key="section.slug"
-        :transform="getNodeTransform(section.slug, index)"
-        @click="showPopup(section.slug, $event)"
+    <template x-for="territory in mapData.userMap.territories.filter(t => t.unlocked)" :key="territory.slug">
+      <section
+        class="py-10 px-4 mb-8 rounded shadow-md"
+        :style="`background-color: ${getTerritoryColor(territory.slug)}`"
       >
-        <circle
-          r="40"
-          :fill="section.completed ? '#4ade80' : (section.unlocked ? '#facc15' : '#94a3b8')"
-          stroke="#1e293b"
-          stroke-width="3"
-        ></circle>
-        <text
-          x="0"
-          y="5"
-          font-size="14"
-          fill="#1e293b"
-          text-anchor="middle"
-          x-text="section.slug"
-        ></text>
-      </g>
-    </svg>
-  </template>
+        <h2 class="text-xl font-bold text-white" x-text="territory.title"></h2>
+        <p class="text-sm text-gray-200 mb-4" x-text="territory.description"></p>
 
-  <template x-if="popupBox.visible">
-    <div
-      class="popup-box"
-      :style="`position:absolute; left:${popupBox.position.x}px; top:${popupBox.position.y}px; transform:translate(-50%, 10px); background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.3); padding:1rem; border-radius:8px; width:220px;`">
-      <h3 x-text="popupBox.title" style="margin-top:0; font-size:16px;"></h3>
-      <p>
-        Estado:
-        <span x-text="(() => { const sec = popupBox.targetSlug ? mapData.userMap.territories.flatMap(t => t.sections).find(s => s.slug === popupBox.targetSlug) : null; return sec && sec.completed ? 'completada' : (sec && sec.unlocked ? 'desbloqueada' : 'bloqueada'); })()"></span>
-      </p>
-      <p x-show="popupBox.friction">Fricción: <span x-text="popupBox.friction"></span></p>
-      <p x-show="popupBox.recommendation">Recomendación: <span x-text="popupBox.recommendation"></span></p>
-      <p x-show="popupBox.details" x-text="popupBox.details"></p>
-      <button @click="popupBox.visible = false" style="margin-top:0.5rem;">Cerrar</button>
-    </div>
-  </template>
+        <template x-for="section in territory.sections" :key="section.slug">
+          <div class="relative bg-white rounded p-4 shadow mb-4 cursor-pointer"
+               @click="openPopup(section)"
+               :class="{ 'opacity-100': section.unlocked, 'opacity-50': !section.unlocked, 'border-l-4 border-green-500': section.completed }">
+            <div class="absolute top-2 right-2 text-xl">
+              <template x-if="section.completed">
+                <span class="text-green-600" title="Completada">✅</span>
+              </template>
+              <template x-if="!section.completed && section.unlocked">
+                <span class="text-blue-600" title="Desbloqueada">🔓</span>
+              </template>
+              <template x-if="!section.unlocked">
+                <span class="text-gray-400" title="Bloqueada">🔒</span>
+              </template>
+            </div>
+            <h3 class="text-lg font-bold" x-text="section.title"></h3>
+            <p class="text-sm text-gray-700 mt-1" x-text="`Impacto: ${section.impact}`"></p>
+            <p class="text-sm text-gray-500 italic" x-text="`Fricción: ${section.friction}`"></p>
+          </div>
+        </template>
+      </section>
+    </template>
+
+
 
   <template x-if="territoryCompletedBox.visible">
     <div style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#ffffff; box-shadow:0 4px 12px rgba(0,0,0,0.3); padding:1rem 1.5rem; border-radius:8px; max-width:420px; text-align:center; z-index:1000;">
@@ -136,6 +96,35 @@
     </div>
   </template>
 
+    </main>
+
+  <div x-show="popupBox.visible"
+       class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+       @click.self="closePopup">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-lg relative">
+      <button @click="closePopup"
+              class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+        ✕
+      </button>
+
+      <h2 class="text-xl font-bold mb-2" x-text="popupBox.section?.title"></h2>
+      <p class="text-sm text-gray-600 mb-1"
+         x-text="`Fricción: ${popupBox.section?.friction}`"></p>
+      <p class="text-sm text-gray-600 mb-1"
+         x-text="`Impacto: ${popupBox.section?.impact}`"></p>
+      <p class="text-gray-800 mt-4 text-sm" x-text="popupBox.section?.details"></p>
+      <p class="text-blue-700 font-medium mt-2 text-sm italic"
+         x-text="popupBox.section?.recommendation"></p>
+
+      <template x-if="popupBox.section?.unlocked && !popupBox.section?.completed">
+        <button @click="completeSection(popupBox.section.slug)"
+                class="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">
+          Marcar como completada
+        </button>
+      </template>
+    </div>
+  </div>
+
   <div x-show="error" style="color: red; margin-bottom: 1rem;" x-text="error"></div>
 
   <div class="debug">
@@ -155,19 +144,14 @@
           userMap: {},
           progressRecord: {},
           achievements: [],
-          totalPoints: 0,
           mapSettings: {
             enableSoundFx: false
           }
         },
+        totalPoints: 0,
         popupBox: {
-          title: '',
-          friction: '',
-          recommendation: '',
-          details: '',
           visible: false,
-          targetSlug: '',
-          position: { x: 0, y: 0 }
+          section: null
         },
         territoryCompletedBox: {
           visible: false,
@@ -181,6 +165,13 @@
           message: ''
         },
         showAchievementsPanel: false,
+        hoverIndex: null,
+        get currentTerritory() {
+          if (!this.mapData.userMap || !Array.isArray(this.mapData.userMap.territories)) {
+            return { sections: [] };
+          }
+          return this.mapData.userMap.territories.find(t => t.slug === this.mapData.userMap.currentTerritorySlug) || { sections: [] };
+        },
         init() {
           const token = new URLSearchParams(window.location.search).get('token');
           if (!token) {
@@ -209,39 +200,69 @@
               this.loading = false;
             });
         },
-        showPopup(slug, evt) {
-          if (!this.mapData.userMap || !Array.isArray(this.mapData.userMap.territories)) {
-            return;
-          }
-          let sectionInfo = null;
-          for (const territory of this.mapData.userMap.territories) {
-            if (!Array.isArray(territory.sections)) continue;
-            for (const sec of territory.sections) {
-              if (sec.slug === slug) {
-                sectionInfo = sec;
-                break;
-              }
-            }
-            if (sectionInfo) break;
-          }
-          if (!sectionInfo) {
-            return;
-          }
-          this.popupBox.title = sectionInfo.title || slug;
-          this.popupBox.friction = sectionInfo.friction || '';
-          this.popupBox.recommendation = sectionInfo.recommendation || '';
-          this.popupBox.details = sectionInfo.details || '';
-          this.popupBox.targetSlug = slug;
-          const rect = evt.currentTarget.getBoundingClientRect();
-          this.popupBox.position.x = rect.left + rect.width / 2 + window.scrollX;
-          this.popupBox.position.y = rect.top + rect.height + window.scrollY;
+        openPopup(section) {
+          this.popupBox.section = section;
           this.popupBox.visible = true;
         },
-        getCurrentTerritory() {
-          if (!this.mapData.userMap || !Array.isArray(this.mapData.userMap.territories)) {
-            return null;
+        closePopup() {
+          this.popupBox.visible = false;
+        },
+        completeSection(slug) {
+          let territory = null;
+          let section = null;
+          for (const terr of this.mapData.userMap?.territories || []) {
+            const sec = terr.sections?.find(s => s.slug === slug);
+            if (sec) { territory = terr; section = sec; break; }
           }
-          return this.mapData.userMap.territories.find(t => t.slug === this.mapData.userMap.currentTerritorySlug) || null;
+          if (!section || !section.unlocked || section.completed) return;
+
+          // 1. Marcar sección como completada
+          section.completed = true;
+
+          // 2. Desbloquear secciones siguientes si las hay
+          (section.next || []).forEach(nextSlug => {
+            const next = territory.sections.find(s => s.slug === nextSlug);
+            if (next && !next.unlocked) next.unlocked = true;
+          });
+
+          // 3. Verificar si todo el territorio está completado
+          if (territory.sections.every(s => s.completed)) {
+            territory.completed = true;
+          }
+
+          // 4. Recalcular puntos
+          this.calculatePoints();
+
+          // 5. Evaluar logros
+          this.unlockAchievements?.();
+
+          // 6. Cerrar popup
+          this.popupBox.visible = false;
+
+          // Mostrar mensaje motivacional si se completó todo el territorio
+          this.checkTerritoryCompletion(territory);
+
+          // 7. Sincronizar con backend
+          if (this.mapData.userMap && this.mapData.userMap.userId) {
+            fetch(`/wp-json/conversio-battle-map/v1/map/${this.mapData.userMap.userId}/section/${slug}/complete`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                timestamp: new Date().toISOString()
+              })
+            })
+              .then(res => res.json())
+              .then(data => {
+                if (!data.success) {
+                  console.error('Error al sincronizar sección:', data);
+                }
+              });
+          }
+        },
+        getCurrentTerritory() {
+          return this.currentTerritory;
         },
         getCurrentTerritoryTitle() {
           const terr = this.getCurrentTerritory();
@@ -257,8 +278,8 @@
           const percent = total ? Math.round((completed / total) * 100) : 0;
           return { completed, total, percent };
         },
-        checkTerritoryCompletion() {
-          const terr = this.getCurrentTerritory();
+        checkTerritoryCompletion(territory = null) {
+          const terr = territory || this.getCurrentTerritory();
           if (!terr || !Array.isArray(terr.sections)) {
             return;
           }
@@ -275,6 +296,7 @@
         },
         calculatePoints() {
           if (!this.mapData.userMap || !Array.isArray(this.mapData.userMap.territories)) {
+            this.totalPoints = 0;
             this.mapData.totalPoints = 0;
             return;
           }
@@ -292,10 +314,11 @@
             }
           }
           if (totalWeight > 0) {
-            this.mapData.totalPoints = Math.floor((completedWeight / totalWeight) * 1000);
+            this.totalPoints = Math.round((completedWeight / totalWeight) * 1000);
           } else {
-            this.mapData.totalPoints = 0;
+            this.totalPoints = 0;
           }
+          this.mapData.totalPoints = this.totalPoints;
           this.unlockAchievements();
         },
         unlockAchievements() {
@@ -324,12 +347,12 @@
             {
               id: 'half-map',
               title: 'Mitad del mapa',
-              check: () => this.mapData.totalPoints >= 500
+              check: () => this.totalPoints >= 500
             },
             {
               id: 'full-map',
               title: 'Mapa completo \uD83C\uDFC6',
-              check: () => this.mapData.totalPoints === 1000
+              check: () => this.totalPoints === 1000
             }
           ];
 
@@ -360,6 +383,14 @@
             if (navigator.vibrate) navigator.vibrate(200);
           }
           setTimeout(() => { this.achievementNotification.visible = false; }, 3000);
+        },
+        getTerritoryColor(slug) {
+          const map = {
+            'clarity-call': '#0ea5e9',
+            'battle-map': '#10b981',
+            'scanner': '#8b5cf6'
+          };
+          return map[slug] || '#94a3b8';
         },
         getNodePosition(slug) {
           if (this.mapData.visualMap && Array.isArray(this.mapData.visualMap.nodes)) {
