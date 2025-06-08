@@ -59,7 +59,7 @@
         <template x-for="section in territory.sections">
           <div
             class="bg-white/90 text-black rounded shadow p-4 w-full max-w-md"
-            :class="{ 'ring-2 ring-orange-500': popupBox.visible && popupBox.section?.slug === section.slug }"
+            :class="{ 'ring-2 ring-orange-500': popupVisible && activeSection?.slug === section.slug }"
             @click="openPopup(section)">
             <img
               class="w-12 h-12 mb-2"
@@ -107,7 +107,8 @@
     </div>
   </template>
 
-  <div x-show="popupBox.visible"
+  <div x-show="popupVisible"
+       x-transition
        @click.outside="closePopup"
        class="fixed top-[80px] right-4 w-[320px] max-w-full bg-white/90 text-black rounded-lg shadow-lg p-5 z-50 space-y-3"
        style="backdrop-filter: blur(8px);">
@@ -116,35 +117,35 @@
       <div class="flex items-start gap-3">
         <img
           class="w-10 h-10 mb-2"
-          :src="`${cbmBaseUrl}/assets/icons/${popupBox.section?.slug}.png`"
-          :alt="popupBox.section?.title"
+          :src="`${cbmBaseUrl}/assets/icons/${activeSection?.slug}.png`"
+          :alt="activeSection?.title"
           @error="$el.style.display='none'"
         />
-        <h2 class="text-xl font-bold" x-text="popupBox.section?.title"></h2>
+        <h2 class="text-xl font-bold" x-text="activeSection?.title"></h2>
       </div>
       <button @click="closePopup" class="text-gray-600 hover:text-black text-xl font-bold">×</button>
     </div>
 
     <div class="bg-gray-100 text-gray-800 rounded px-3 py-2 text-sm space-y-1">
-      <p><strong>Fricción:</strong> <span x-text="popupBox.section?.friction"></span></p>
-      <p><strong>Impacto:</strong> <span x-text="popupBox.section?.impact"></span></p>
+      <p><strong>Fricción:</strong> <span x-text="activeSection?.friction"></span></p>
+      <p><strong>Impacto:</strong> <span x-text="activeSection?.impact"></span></p>
     </div>
 
-    <template x-if="popupBox.section?.details">
+    <template x-if="activeSection?.details">
       <div class="mt-3">
         <p class="text-sm font-semibold mb-1 text-gray-800">Síntomas detectados:</p>
-        <p class="text-sm italic text-gray-600" x-text="popupBox.section.details"></p>
+        <p class="text-sm italic text-gray-600" x-text="activeSection.details"></p>
       </div>
     </template>
 
     <p class="text-sm font-medium text-blue-600 italic"
-       x-text="popupBox.section?.recommendation"></p>
+       x-text="activeSection?.recommendation"></p>
 
-    <template x-if="popupBox.section?.recommendations?.length">
+    <template x-if="activeSection?.recommendationsList?.length">
       <div class="mt-4">
         <p class="text-sm font-semibold mb-1">Recomendaciones clave:</p>
         <ul class="space-y-2 text-sm text-gray-700 list-none pl-0">
-          <template x-for="(rec, index) in popupBox.section.recommendations">
+          <template x-for="(rec, index) in activeSection.recommendationsList">
             <li class="flex items-start gap-2 bg-white/80 p-2 rounded shadow">
               <!-- Prioridad -->
               <span
@@ -158,7 +159,7 @@
 
               <!-- Contenido -->
               <div class="flex-1 space-y-1">
-                <p x-text="rec.text" class="leading-tight font-medium text-gray-800"></p>
+                <p x-text="rec.title" class="leading-tight font-medium text-gray-800"></p>
                 <!-- Tipo -->
                 <template x-if="rec.type">
                   <span x-text="rec.type"
@@ -171,8 +172,8 @@
       </div>
     </template>
 
-    <template x-if="popupBox.section?.unlocked && !popupBox.section?.completed">
-      <button @click="completeSection(popupBox.section.slug)"
+    <template x-if="activeSection?.unlocked && !activeSection?.completed">
+      <button @click="markAsCompleted(activeSection.slug)"
               class="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">
         Marcar como completada
       </button>
@@ -206,10 +207,8 @@
           }
         },
         totalPoints: 0,
-        popupBox: {
-          visible: false,
-          section: null
-        },
+        popupVisible: false,
+        activeSection: null,
         territoryCompletedBox: {
           visible: false,
           title: '',
@@ -258,11 +257,15 @@
             });
         },
         openPopup(section) {
-          this.popupBox.section = section;
-          this.popupBox.visible = true;
+          this.activeSection = section;
+          this.popupVisible = true;
         },
         closePopup() {
-          this.popupBox.visible = false;
+          this.popupVisible = false;
+          this.activeSection = null;
+        },
+        markAsCompleted(slug) {
+          // Se implementará en el siguiente paso
         },
         completeSection(slug) {
           let territory = null;
@@ -294,7 +297,7 @@
           this.unlockAchievements?.();
 
           // 6. Cerrar popup
-          this.popupBox.visible = false;
+          this.popupVisible = false;
 
           // Mostrar mensaje motivacional si se completó todo el territorio
           this.checkTerritoryCompletion(territory);
