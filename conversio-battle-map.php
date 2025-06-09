@@ -23,10 +23,10 @@ define( 'CBM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CBM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // Custom rewrite rule and tag for direct map access.
-add_action( 'init', function() {
-    add_rewrite_rule( '^battle-map/map/?$', 'index.php?battle_map_view=1', 'top' );
-    add_rewrite_tag( '%battle_map_view%', '1' );
-} );
+add_action('init', function() {
+    add_rewrite_rule('^battle-map/map/?$', 'index.php?battle_map_view=1', 'top');
+    add_rewrite_tag('%battle_map_view%', '1');
+});
 
 /**
  * Activate plugin: register CPT and flush rewrite rules.
@@ -68,27 +68,27 @@ add_shortcode( 'battle_map', 'cbm_render_map' );
 
 // Rewrite rule and template loader for direct map access.
 
-add_filter( 'template_include', function ( $template ) {
-    if ( get_query_var( 'battle_map_view' ) ) {
-        return plugin_dir_path( __FILE__ ) . 'templates/map-template.php';
+add_filter('template_include', function($template) {
+    if (get_query_var('battle_map_view')) {
+        return plugin_dir_path(__FILE__) . 'templates/map-template.php';
     }
     return $template;
-} );
+});
 
 // Admin menu entry for plugin settings/info
-add_action( 'admin_menu', function() {
+add_action('admin_menu', function() {
     add_menu_page(
         'Battle Map',
         'Battle Map',
         'manage_options',
         'conversio-battle-map',
         function() {
-            echo '<div class="wrap"><h1>Battle Map Conversio</h1><p>Plugin activo y funcionando.</p></div>';
+            echo '<div class="wrap"><h1>Battle Map Conversio</h1><p>El plugin está activo.</p></div>';
         },
         'dashicons-location-alt',
         56
     );
-} );
+});
 
 // Initialize plugin
 add_action( 'plugins_loaded', function() {
