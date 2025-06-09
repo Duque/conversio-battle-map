@@ -56,7 +56,7 @@
           <p class="text-sm mt-1" x-text="territory.description"></p>
         </div>
 
-        <svg class="map-canvas w-full h-[500px] relative" xmlns="http://www.w3.org/2000/svg">
+        <svg class="map-canvas w-full h-[800px] relative" viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg">
           <template x-for="path in mapData.visualMap?.paths?.filter(p => p.fromSlug && p.toSlug)" :key="path.fromSlug + '-' + path.toSlug">
             <path
               :d="buildPathD(path)"
