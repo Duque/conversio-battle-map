@@ -74,6 +74,15 @@ Marcar una sección como completada es opcional. Está pensado como ayuda visual
 - Se evalúa si se cumplen condiciones para desbloquear logros.
 - Puede dispararse un mensaje narrativo automático (según catálogos).
 
+#### 🧪 Interacción desde el InfoBox
+
+Cuando el usuario pulsa el botón "Marcar como completada" en el InfoBox:
+
+- Se envía un `POST` al endpoint correspondiente.
+- Se actualiza el estado visual (`completed: true`) en frontend.
+- Se cierra el panel lateral automáticamente.
+- (Opcional) Puede mostrarse un mensaje motivacional si existe en la `narrativeQueue`.
+
 ### 🔓 Desbloqueo de territorios
 
 El desbloqueo de territorios no ocurre de forma automática. Solo se activa cuando el usuario contrata el siguiente producto de la metodología Conversio. Este desbloqueo puede hacerse manualmente (desde el backend) o automáticamente al completarse el pago, mediante el endpoint REST `unlockTerritory()`.
@@ -124,6 +133,19 @@ Los logros (`Achievement`) se activan cuando se cumplen ciertas condiciones. Se 
 - `full-map`: mapa completo terminado.
 
 Los logros pueden mostrarse visualmente como medallas o insignias.
+
+#### 🎉 Visualización de logros
+
+Cuando el usuario completa una sección, se verifica automáticamente si se han desbloqueado logros nuevos. El proceso completo incluye:
+
+- Comparación del estado de achievements antes y después de la acción.
+- Identificación de nuevos logros donde `unlocked = true` y no estaban previamente desbloqueados.
+- Visualización inmediata de los logros en pantalla como modales, alertas o mensajes flotantes.
+- Estilo visual según tipo de logro (success, info, narrator…).
+- Posibilidad de cierre manual o cierre automático con retardo (autoClose).
+- Fuente de datos opcional desde el catálogo de logros en `catalogs.json`.
+
+Estos logros se almacenan en `userMap.achievements[]` junto con la fecha (`unlockedAt`) y se pueden reutilizar para gamificación, exportaciones o futuras funcionalidades.
 
 ### 💡 Popup lateral (InfoBox)
 
@@ -229,6 +251,15 @@ Los siguientes modelos representan la estructura de datos usada por el mapa, tan
 - `pathType`: string – Estilo (line, curve, dotted).
 - `style`: string (opcional) – Clase CSS o inline style.
 
+🧭 Visualización de rutas
+
+Las rutas entre nodos se renderizan dentro de `svg.map-canvas` como elementos `<path>`.
+
+- Cada ruta usa `buildPathD(path)` para definir su forma.
+- El tipo `line` dibuja una línea recta. El tipo `curve` dibuja una curva de Bézier.
+- Se pueden aplicar estilos adicionales desde `path.style` (ej. línea punteada, grosor, color).
+- Las rutas se dibujan antes que los nodos para que estos queden encima visualmente
+
 ### ProductOffer
 
 - `id`: string – Identificador de la oferta.
@@ -264,9 +295,22 @@ La vista principal del mapa se carga desde el archivo `templates/map-template.ph
 - `template x-for="territory in userMap.territories"`: renderiza todos los territorios desbloqueados.
 - `div.territory-title`: muestra el nombre del territorio y su progreso.
 - `svg.map-canvas`: lienzo SVG donde se posicionan nodos y rutas.
+
+🔁 Render dinámico en SVG
+
+  Cada sección del territorio se representa como un nodo SVG dentro de `svg.map-canvas`, con su posición (`x`, `y`) y estilo visual según su estado (`completed`, `locked`). Se usa `<circle>` o `<image>` para representar los nodos, junto con iconos personalizados desde `/assets/icons/{slug}.png`.
+
+  Cada territorio aplica su `backgroundImage` como fondo visual. Esto permite convertir la experiencia en una navegación tipo mapa, no una lista textual.
 - `template x-for="section in territory.sections"`: renderiza los nodos visuales (por ahora círculos con icono).
 - `img.section-icon`: icono de cada sección (ruta `/assets/icons/{slug}.png`).
 - `div.debug-box`: caja flotante en esquina inferior derecha para visualizar el estado (solo en modo desarrollo).
+
+🧭 Visualización de rutas
+
+Las rutas entre nodos se dibujan en `svg.map-canvas` mediante elementos `<path>`.
+- Cada trazado se genera con `buildPathD(path)`.
+- Los estilos extra provienen de `path.style` y permiten líneas punteadas o distintos colores.
+- Se renderizan antes de los nodos para que estos se muestren por encima.
 
 ### Interacciones clave
 
