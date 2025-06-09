@@ -258,8 +258,7 @@ Las rutas entre nodos se renderizan dentro de `svg.map-canvas` como elementos `<
 - Cada ruta usa `buildPathD(path)` para definir su forma.
 - El tipo `line` dibuja una línea recta. El tipo `curve` dibuja una curva de Bézier.
 - Se pueden aplicar estilos adicionales desde `path.style` (ej. línea punteada, grosor, color).
-- Las rutas se dibujan antes que los nodos para que estos queden encima visualmente
-
+- Las rutas se dibujan antes que los nodos para que estos queden encima visualmente.
 ### ProductOffer
 
 - `id`: string – Identificador de la oferta.
@@ -300,17 +299,18 @@ La vista principal del mapa se carga desde el archivo `templates/map-template.ph
 
   Cada sección del territorio se representa como un nodo SVG dentro de `svg.map-canvas`, con su posición (`x`, `y`) y estilo visual según su estado (`completed`, `locked`). Se usa `<circle>` o `<image>` para representar los nodos, junto con iconos personalizados desde `/assets/icons/{slug}.png`.
 
-  Cada territorio aplica su `backgroundImage` como fondo visual. Esto permite convertir la experiencia en una navegación tipo mapa, no una lista textual.
+  Cada territorio aplica su `backgroundImage` junto a un degradado claro como fondo visual (`linear-gradient(to bottom, #f1f5f9, #e2e8f0)`). Esto permite convertir la experiencia en una navegación tipo mapa, no una lista textual y mejora la legibilidad.
 - `template x-for="section in territory.sections"`: renderiza los nodos visuales (por ahora círculos con icono).
 - `img.section-icon`: icono de cada sección (ruta `/assets/icons/{slug}.png`).
 - `div.debug-box`: caja flotante en esquina inferior derecha para visualizar el estado (solo en modo desarrollo).
 
 🧭 Visualización de rutas
 
-Las rutas entre nodos se dibujan en `svg.map-canvas` mediante elementos `<path>`.
-- Cada trazado se genera con `buildPathD(path)`.
-- Los estilos extra provienen de `path.style` y permiten líneas punteadas o distintos colores.
-- Se renderizan antes de los nodos para que estos se muestren por encima.
+Las rutas entre nodos se renderizan dentro de `svg.map-canvas` como elementos `<path>`.
+- Cada ruta usa `buildPathD(path)` para definir su forma.
+- El tipo `line` dibuja una línea recta. El tipo `curve` dibuja una curva de Bézier.
+- Se pueden aplicar estilos adicionales desde `path.style` (ej. línea punteada, grosor, color).
+- Las rutas se dibujan antes que los nodos para que estos queden encima visualmente.
 
 ### Interacciones clave
 
@@ -335,6 +335,7 @@ Se cierra automáticamente al hacer clic fuera y cuenta con una transición suav
 
 - El mapa ocupa toda la pantalla (`100vw` × `100vh`) y permite scroll vertical.
 - Cada territorio puede tener su propia imagen de fondo (`backgroundImage`).
+- Cada territorio usa un degradado claro (`linear-gradient(to bottom, #f1f5f9, #e2e8f0)`) sobre su imagen de fondo para asegurar contraste.
 - Las secciones se posicionan con coordenadas absolutas (`x`, `y`) dentro del SVG.
 - El panel de debug (`div.debug-box`) tiene posición fija (`fixed`) y alto `z-index`.
 

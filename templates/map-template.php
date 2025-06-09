@@ -49,14 +49,14 @@
       <section
         :id="`territory-${territory.slug}`"
         class="w-full min-h-screen px-4 py-16 flex flex-col gap-6 relative snap-start bg-cover bg-center bg-no-repeat"
-        :style="`background-image: url(${territory.backgroundImage || cbmBaseUrl + '/assets/backgrounds/' + territory.slug + '.png'}), linear-gradient(to bottom, #1e293b, #0f172a);`"
+        :style="`background-image: url(${territory.backgroundImage || cbmBaseUrl + '/assets/backgrounds/' + territory.slug + '.png'}), linear-gradient(to bottom, #f1f5f9, #e2e8f0);`"
       >
         <div class="bg-black/50 p-4 rounded max-w-xl">
           <h2 class="text-2xl font-bold" x-text="territory.title"></h2>
           <p class="text-sm mt-1" x-text="territory.description"></p>
         </div>
 
-        <svg class="map-canvas w-full h-full relative" xmlns="http://www.w3.org/2000/svg">
+        <svg class="map-canvas w-full h-[500px] relative" xmlns="http://www.w3.org/2000/svg">
           <template x-for="path in mapData.visualMap?.paths?.filter(p => p.fromSlug && p.toSlug)" :key="path.fromSlug + '-' + path.toSlug">
             <path
               :d="buildPathD(path)"
@@ -66,26 +66,15 @@
               :class="path.style"
             />
           </template>
-          <template x-for="section in territory.sections" :key="section.slug">
-            <template x-if="section.icon">
-              <image
-                @click="openPopup(section)"
-                :href="'/assets/icons/' + section.slug + '.png'"
-                width="40" height="40"
-                :x="section.x"
-                :y="section.y"
-                :class="{ 'completed': section.completed, 'locked': !section.unlocked }"
-              ></image>
-            </template>
-            <template x-if="!section.icon">
-              <circle
-                @click="openPopup(section)"
-                r="20"
-                :cx="section.x"
-                :cy="section.y"
-                :class="{ 'completed': section.completed, 'locked': !section.unlocked }"
-              ></circle>
-            </template>
+          <template x-for="(section, index) in territory.sections" :key="section.slug">
+            <g :transform="getNodeTransform(section.slug, index)" @click="openPopup(section)" style="cursor: pointer;">
+              <circle r="30" fill="white" stroke="#1e3a8a" stroke-width="3"
+                      :class="{ 'opacity-50': !section.unlocked, 'fill-green-500': section.completed }" />
+              <image :href="`${cbmBaseUrl}/assets/icons/${section.slug}.png`"
+                     x="-16" y="-16" width="32" height="32"
+                     @error="$el.style.display='none'" />
+              <text x="0" y="45" text-anchor="middle" font-size="12" fill="#fff" x-text="section.title"></text>
+            </g>
           </template>
         </svg>
       </section>
