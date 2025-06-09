@@ -49,29 +49,45 @@
       <section
         :id="`territory-${territory.slug}`"
         class="w-full min-h-screen px-4 py-16 flex flex-col gap-6 relative snap-start bg-cover bg-center bg-no-repeat"
-        :style="`background-image: url(${cbmBaseUrl}/assets/backgrounds/${territory.slug}.png), linear-gradient(to bottom, #1e293b, #0f172a);`"
+        :style="`background-image: url(${territory.backgroundImage || cbmBaseUrl + '/assets/backgrounds/' + territory.slug + '.png'}), linear-gradient(to bottom, #1e293b, #0f172a);`"
       >
         <div class="bg-black/50 p-4 rounded max-w-xl">
           <h2 class="text-2xl font-bold" x-text="territory.title"></h2>
           <p class="text-sm mt-1" x-text="territory.description"></p>
         </div>
 
-        <template x-for="section in territory.sections">
-          <div
-            class="bg-white/90 text-black rounded shadow p-4 w-full max-w-md"
-            :class="{ 'ring-2 ring-orange-500': popupVisible && activeSection?.slug === section.slug }"
-            @click="openPopup(section)">
-            <img
-              class="w-12 h-12 mb-2"
-              :src="`${cbmBaseUrl}/assets/icons/${section.slug}.png`"
-              :alt="section.title"
-              @error="$el.style.display='none'"
+        <svg class="map-canvas w-full h-full relative" xmlns="http://www.w3.org/2000/svg">
+          <template x-for="path in mapData.visualMap?.paths?.filter(p => p.fromSlug && p.toSlug)" :key="path.fromSlug + '-' + path.toSlug">
+            <path
+              :d="buildPathD(path)"
+              fill="none"
+              stroke="#94a3b8"
+              stroke-width="2"
+              :class="path.style"
             />
-            <h3 class="font-semibold text-lg" x-text="section.title"></h3>
-            <p class="text-sm" x-text="`Impacto: ${section.impact}`"></p>
-            <p class="text-sm italic" x-text="`Fricción: ${section.friction}`"></p>
-          </div>
-        </template>
+          </template>
+          <template x-for="section in territory.sections" :key="section.slug">
+            <template x-if="section.icon">
+              <image
+                @click="openPopup(section)"
+                :href="'/assets/icons/' + section.slug + '.png'"
+                width="40" height="40"
+                :x="section.x"
+                :y="section.y"
+                :class="{ 'completed': section.completed, 'locked': !section.unlocked }"
+              ></image>
+            </template>
+            <template x-if="!section.icon">
+              <circle
+                @click="openPopup(section)"
+                r="20"
+                :cx="section.x"
+                :cy="section.y"
+                :class="{ 'completed': section.completed, 'locked': !section.unlocked }"
+              ></circle>
+            </template>
+          </template>
+        </svg>
       </section>
     </template>
 
@@ -172,12 +188,11 @@
       </div>
     </template>
 
-    <template x-if="activeSection?.unlocked && !activeSection?.completed">
-      <button @click="markAsCompleted(activeSection.slug)"
-              class="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">
-        Marcar como completada
-      </button>
-    </template>
+    <button x-show="activeSection?.unlocked && !activeSection?.completed"
+            @click="markAsCompleted(activeSection.slug)"
+            class="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">
+      Marcar como completada
+    </button>
   </div>
 
   <div x-show="error" style="color: red; margin-bottom: 1rem;" x-text="error"></div>
@@ -265,7 +280,34 @@
           this.activeSection = null;
         },
         markAsCompleted(slug) {
-          // Se implementará en el siguiente paso
+          if (!this.mapData.userMap || !this.mapData.userMap.userId) {
+            return;
+          }
+          fetch(`/wp-json/battle-map/v1/user/${this.mapData.userMap.userId}/section/${slug}/complete`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+            .then(res => res.json())
+            .then(data => {
+              // actualizar estado local con la respuesta
+              if (data && data.userMap) {
+                this.mapData.userMap = data.userMap;
+                if (data.progressRecord) {
+                  this.mapData.progressRecord = data.progressRecord;
+                }
+                if (Array.isArray(data.newAchievements)) {
+                  data.newAchievements.forEach(a => this.showAchievement?.(a.title || a.id));
+                }
+                if (data.narrativeMessages && data.narrativeMessages.length) {
+                  alert(data.narrativeMessages[0].text || data.narrativeMessages[0].message || '¡Buen trabajo!');
+                }
+              }
+              this.calculatePoints();
+              this.popupVisible = false;
+            })
+            .catch(err => console.error('Error al completar sección:', err));
         },
         completeSection(slug) {
           let territory = null;
