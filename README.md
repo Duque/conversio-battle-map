@@ -127,7 +127,7 @@ Los logros pueden mostrarse visualmente como medallas o insignias.
 
 ### 💡 Popup lateral (InfoBox)
 
-Es el componente clave de visualización dentro del mapa. Al hacer clic en una sección del mapa, se muestra un panel lateral con:
+Es el componente clave de visualización dentro del mapa. Implementado como un panel flotante en el lateral derecho que visualiza dinámicamente la información de cada sección. Al hacer clic en un nodo del mapa, se despliega con la siguiente información:
 
 - Icono representativo de la sección.
 - Título, nivel de fricción e impacto.
@@ -135,9 +135,9 @@ Es el componente clave de visualización dentro del mapa. Al hacer clic en una s
 - Recomendación principal (`recommendation`).
 - Lista de subtareas (`recommendationsList`).
 - Estado actual: completada, desbloqueada o bloqueada.
-- Botón para marcar como completada (si está desbloqueada).
+- Botón para marcar como completada (solo si la sección está desbloqueada y no ha sido completada).
 
-El popup aparece flotante sobre el mapa y se cierra automáticamente al hacer clic fuera de él.
+El popup se cierra automáticamente al hacer clic fuera y cuenta con una transición suave activada.
 
 ## 🧩 Modelos de datos clave
 
@@ -277,15 +277,15 @@ La vista principal del mapa se carga desde el archivo `templates/map-template.ph
 
 ### InfoBox (panel lateral)
 
-Se muestra flotando a la derecha del mapa y contiene:
+Se implementa como un panel flotante en el lateral derecho del mapa y contiene:
 
 - Título y estado de la sección.
 - Fricción e impacto.
 - Diagnóstico ampliado y recomendación principal.
 - Lista de subtareas.
-- Botón «Marcar como completada» (si está desbloqueada).
+- Botón «Marcar como completada» (visible solo si la sección está desbloqueada y no completada).
 
-Puede cerrarse manualmente o automáticamente.
+Se cierra automáticamente al hacer clic fuera y cuenta con una transición suave; también puede cerrarse manualmente.
 
 ### Estilos visuales
 
