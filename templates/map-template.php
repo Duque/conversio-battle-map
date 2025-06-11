@@ -46,37 +46,25 @@
     </div>
 
     <template x-for="territory in mapData.userMap.territories.filter(t => t.unlocked)" :key="territory.slug">
-      <section
-        :id="`territory-${territory.slug}`"
-        class="w-full min-h-screen px-4 py-16 flex flex-col gap-6 relative snap-start bg-cover bg-center bg-no-repeat"
-        :style="`background-image: url(${territory.backgroundImage || cbmBaseUrl + '/assets/backgrounds/' + territory.slug + '.png'}), linear-gradient(to bottom, #f1f5f9, #e2e8f0);`"
-      >
-        <div class="bg-black/50 p-4 rounded max-w-xl">
-          <h2 class="text-2xl font-bold" x-text="territory.title"></h2>
-          <p class="text-sm mt-1" x-text="territory.description"></p>
-        </div>
-
-        <svg class="map-canvas w-full h-[800px] relative" viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg">
-          <template x-for="path in mapData.visualMap?.paths?.filter(p => p.fromSlug && p.toSlug)" :key="path.fromSlug + '-' + path.toSlug">
-            <path
-              :d="buildPathD(path)"
-              fill="none"
-              stroke="#94a3b8"
-              stroke-width="2"
-              :class="path.style"
+      <section class="relative w-full" :id="`territory-${territory.slug}`">
+        <template x-for="section in territory.sections" :key="section.slug">
+          <div @click="openPopup(section)" class="relative w-full cursor-pointer" :id="`section-${section.slug}`">
+            <!-- Fondo visual del mapSection -->
+            <img
+              class="w-full h-auto block"
+              :src="`${cbmBaseUrl}/assets/backgrounds/${section.slug}.png`"
+              alt=""
             />
-          </template>
-          <template x-for="(section, index) in territory.sections" :key="section.slug">
-            <g :transform="getNodeTransform(section.slug, index)" @click="openPopup(section)" style="cursor: pointer;">
-              <circle r="30" fill="white" stroke="#1e3a8a" stroke-width="3"
-                      :class="{ 'opacity-50': !section.unlocked, 'fill-green-500': section.completed }" />
-              <image :href="`${cbmBaseUrl}/assets/icons/${section.slug}.png`"
-                     x="-16" y="-16" width="32" height="32"
-                     @error="$el.style.display='none'" />
-              <text x="0" y="45" text-anchor="middle" font-size="12" fill="#fff" x-text="section.title"></text>
-            </g>
-          </template>
-        </svg>
+
+            <!-- Nodo visual: icono representativo -->
+            <img
+              class="absolute top-4 left-4 w-12 h-12"
+              :src="`${cbmBaseUrl}/assets/icons/${section.slug}.png`"
+              alt=""
+              @error="$el.style.display='none'"
+            />
+          </div>
+        </template>
       </section>
     </template>
 
@@ -111,6 +99,19 @@
       <button @click="showAchievementsPanel = false" style="margin-top:0.5rem;">Cerrar</button>
     </div>
   </template>
+
+
+  <div x-show="error" style="color: red; margin-bottom: 1rem;" x-text="error"></div>
+
+  </div> <!-- fin del contenedor principal del mapa -->
+
+  <div class="debug">
+    <strong>Debug:</strong><br>
+    Estado: <span x-text="loading ? 'Cargando...' : (error ? 'Error' : 'OK')"></span><br>
+    Token: <span x-text="new URLSearchParams(window.location.search).get('token')"></span><br>
+    Datos cargados:<br>
+    <pre x-text="JSON.stringify(mapData, null, 2)"></pre>
+  </div>
 
   <div x-show="popupVisible"
        x-transition
@@ -183,19 +184,6 @@
       Marcar como completada
     </button>
   </div>
-
-  <div x-show="error" style="color: red; margin-bottom: 1rem;" x-text="error"></div>
-
-  </div> <!-- fin del contenedor principal del mapa -->
-
-  <div class="debug">
-    <strong>Debug:</strong><br>
-    Estado: <span x-text="loading ? 'Cargando...' : (error ? 'Error' : 'OK')"></span><br>
-    Token: <span x-text="new URLSearchParams(window.location.search).get('token')"></span><br>
-    Datos cargados:<br>
-    <pre x-text="JSON.stringify(mapData, null, 2)"></pre>
-  </div>
-
   <script>
     function demoMap() {
       return {
