@@ -191,6 +191,134 @@ Los siguientes modelos representan la estructura de datos usada por el mapa, tan
 - `backgroundImage`: string (opcional) – Imagen de fondo del territorio.
 - `sections`: array de `MapSection` – Secciones que lo componen.
 
+### 📦 Ejemplo completo de Territory: Clarity Call™
+
+```json
+{
+  "slug": "clarity-call",
+  "title": "Clarity Call™",
+  "description": "Diagnóstico exprés del embudo",
+  "unlocked": true,
+  "completed": false,
+  "order": 1,
+  "sections": [
+    {
+      "slug": "datos-generales",
+      "title": "Datos Generales",
+      "friction": "Low",
+      "impact": 4,
+      "unlocked": true,
+      "completed": true,
+      "recommendation": "Verifica y documenta correctamente los datos base.",
+      "recommendationsList": [
+        { "id": "nombre", "title": "Nombre del cliente", "type": "Otro", "priority": "Alta", "description": "" },
+        { "id": "email", "title": "Email", "type": "Otro", "priority": "Alta", "description": "" },
+        { "id": "web", "title": "Web", "type": "Otro", "priority": "Alta", "description": "" },
+        { "id": "fecha", "title": "Fecha de la llamada", "type": "Otro", "priority": "Alta", "description": "" },
+        { "id": "tienda", "title": "Nombre de la tienda", "type": "Otro", "priority": "Alta", "description": "" },
+        { "id": "producto", "title": "Producto principal", "type": "Otro", "priority": "Media", "description": "" },
+        { "id": "fact-mensual", "title": "Facturación mensual (media)", "type": "Otro", "priority": "Media", "description": "" },
+        { "id": "fact-anual", "title": "Facturación anual estimada", "type": "Otro", "priority": "Media", "description": "" },
+        { "id": "cms", "title": "CMS (Shopify, Woo, etc.)", "type": "Técnico", "priority": "Baja", "description": "" },
+        { "id": "trafico", "title": "Origen de tráfico principal", "type": "Otro", "priority": "Media", "description": "" }
+      ]
+    },
+    {
+      "slug": "pilar1-conversion",
+      "title": "Pilar 1 – Conversión",
+      "friction": "Medium",
+      "impact": 8,
+      "unlocked": true,
+      "completed": false,
+      "recommendation": "Mejorar la experiencia móvil y los CTA visibles.",
+      "recommendationsList": [
+        { "id": "responsive", "title": "¿La web es responsive y sin errores de maquetación?", "type": "UX", "priority": "Alta", "description": "" },
+        { "id": "usabilidad", "title": "¿Hay fricción visual o usabilidad en móvil?", "type": "UX", "priority": "Alta", "description": "" },
+        { "id": "cta-movil", "title": "¿Los CTA están visibles y accesibles en móvil?", "type": "UX", "priority": "Alta", "description": "" },
+        { "id": "botones", "title": "¿Existen botones flotantes que interfieran?", "type": "UX", "priority": "Media", "description": "" },
+        { "id": "cabecera", "title": "¿El mensaje principal es claro en la cabecera?", "type": "Copy", "priority": "Alta", "description": "" },
+        { "id": "checkout", "title": "¿Se identifican cuellos de botella en la navegación o checkout?", "type": "Técnico", "priority": "Alta", "description": "" }
+      ]
+    },
+    {
+      "slug": "pilar2-ticket",
+      "title": "Pilar 2 – Ticket Medio",
+      "friction": "Low",
+      "impact": 5,
+      "unlocked": true,
+      "completed": false,
+      "recommendation": "Detectar oportunidades de venta adicional.",
+      "recommendationsList": [
+        { "id": "cross", "title": "¿Hay cross-selling o upselling activo?", "type": "Trust", "priority": "Media", "description": "" },
+        { "id": "packs", "title": "¿Hay productos consumibles o packs?", "type": "UX", "priority": "Media", "description": "" },
+        { "id": "recurrencia", "title": "¿Se está incentivando la recurrencia?", "type": "Email", "priority": "Alta", "description": "" }
+      ]
+    },
+    {
+      "slug": "pilar3-audiencia",
+      "title": "Pilar 3 – Audiencia",
+      "friction": "Medium",
+      "impact": 6,
+      "unlocked": true,
+      "completed": false,
+      "recommendation": "Revisar canales activos y posibles sinergias.",
+      "recommendationsList": [
+        { "id": "meta", "title": "¿Tiene campañas activas en Meta Ads?", "type": "Otro", "priority": "Alta", "description": "" },
+        { "id": "google", "title": "¿Utiliza Google Ads?", "type": "Otro", "priority": "Alta", "description": "" },
+        { "id": "rrss", "title": "¿Tiene presencia activa en RRSS?", "type": "Otro", "priority": "Media", "description": "" },
+        { "id": "prospeccion", "title": "¿Hace prospección activa?", "type": "Otro", "priority": "Baja", "description": "" }
+      ]
+    },
+    {
+      "slug": "pilar4-copy",
+      "title": "Pilar 4 – Comunicación",
+      "friction": "High",
+      "impact": 7,
+      "unlocked": true,
+      "completed": false,
+      "recommendation": "Optimizar los flujos y el mensaje de marca.",
+      "recommendationsList": [
+        { "id": "prepurchase", "title": "¿Tiene flujo pre-purchase automatizado?", "type": "Email", "priority": "Media", "description": "" },
+        { "id": "carrito", "title": "¿Tiene al menos 3 emails de carrito abandonado?", "type": "Email", "priority": "Alta", "description": "" },
+        { "id": "valor", "title": "¿La propuesta de valor está claramente formulada?", "type": "Copy", "priority": "Alta", "description": "" },
+        { "id": "alineado", "title": "¿Está alineada con los deseos del cliente ideal?", "type": "Copy", "priority": "Alta", "description": "" },
+        { "id": "coherencia", "title": "¿El copy tiene problemas de claridad, promesa o coherencia?", "type": "Copy", "priority": "Alta", "description": "" }
+      ]
+    },
+    {
+      "slug": "analitica",
+      "title": "Datos de Analítica",
+      "friction": "Low",
+      "impact": 4,
+      "unlocked": true,
+      "completed": true,
+      "recommendation": "Completar datos clave de conversión.",
+      "recommendationsList": [
+        { "id": "cvr", "title": "CVR actual (últimos 12 meses)", "type": "Técnico", "priority": "Media", "description": "" },
+        { "id": "mejor-canal", "title": "Canal con mejor conversión", "type": "Otro", "priority": "Baja", "description": "" },
+        { "id": "aov", "title": "AOV (valor medio por pedido)", "type": "Técnico", "priority": "Media", "description": "" },
+        { "id": "porcentaje", "title": "Porcentaje de ventas por canal", "type": "Otro", "priority": "Baja", "description": "" }
+      ]
+    },
+    {
+      "slug": "conclusion",
+      "title": "Conclusión",
+      "friction": "None",
+      "impact": 2,
+      "unlocked": true,
+      "completed": false,
+      "recommendation": "Establecer foco estratégico y acción inmediata.",
+      "recommendationsList": [
+        { "id": "evaluacion", "title": "Evaluación general del ecommerce", "type": "Otro", "priority": "Alta", "description": "" },
+        { "id": "quickwin", "title": "Quick Win (acción inmediata)", "type": "Otro", "priority": "Alta", "description": "" },
+        { "id": "highleverage", "title": "High Leverage (palanca principal)", "type": "Otro", "priority": "Media", "description": "" },
+        { "id": "focus", "title": "Strategic Focus (visión a medio plazo)", "type": "Otro", "priority": "Media", "description": "" }
+      ]
+    }
+  ]
+}
+```
+
 ### MapSection
 
 - `slug`: string – Identificador único de la sección.
