@@ -52,14 +52,14 @@
             <!-- Fondo visual del mapSection -->
             <img
               class="w-full h-auto block"
-              :src="`${cbmBaseUrl}/assets/backgrounds/${section.slug}.png`"
+              :src="`${cbmBaseUrl}assets/backgrounds/${section.slug}.png`"
               alt=""
             />
 
             <!-- Nodo visual: icono representativo -->
             <img
               class="absolute top-4 left-4 w-12 h-12"
-              :src="`${cbmBaseUrl}/assets/icons/${section.slug}.png`"
+              :src="`${cbmBaseUrl}assets/icons/${section.slug}.png`"
               alt=""
               @error="$el.style.display='none'"
             />
@@ -123,7 +123,7 @@
       <div class="flex items-start gap-3">
         <img
           class="w-10 h-10 mb-2"
-          :src="`${cbmBaseUrl}/assets/icons/${activeSection?.slug}.png`"
+          :src="`${cbmBaseUrl}assets/icons/${activeSection?.slug}.png`"
           :alt="activeSection?.title"
           @error="$el.style.display='none'"
         />
